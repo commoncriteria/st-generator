@@ -17,7 +17,15 @@ import MetadataTD from "./stComponents/MetadataTD.jsx";
 import PPSelections from "./stComponents/PPSelections.jsx";
 import Requirements from "./stComponents/Requirements.jsx";
 import SingleAccordion from "./accordionComponents/SingleAccordion.jsx";
-import { Button, Checkbox, FormControl, FormControlLabel, Input, InputLabel, Typography } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  Input,
+  InputLabel,
+  Typography,
+} from "@mui/material";
 import ResetDataConfirmation from "./modalComponents/ResetDataConfirmation.jsx";
 import { useEffect, useRef, useState } from "react";
 import { loadSfrSectionsFromSelections } from "../utils/loadSfrSections.js";
@@ -46,7 +54,14 @@ function ContentPane({ type }) {
 
   // Constants
   const dispatch = useDispatch();
-  const { selectedPP, selectedPackages, selectedModules, selectedPlatforms, showRequirements, stMetadata } = useSelector((state) => state.accordionPane);
+  const {
+    selectedPP,
+    selectedPackages,
+    selectedModules,
+    selectedPlatforms,
+    showRequirements,
+    stMetadata,
+  } = useSelector((state) => state.accordionPane);
 
   const title = type === "builder" ? "Security Target Generator" : "Preview";
   const [openPreview, setOpenPreview] = useState(false);
@@ -55,8 +70,12 @@ function ContentPane({ type }) {
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [pendingSelection, setPendingSelection] = useState(null);
 
-  const platformData = useSelector((state) => state.accordionPane?.platformData);
-  const isPreviewToggled = useSelector((state) => state.navBar.isPreviewToggled);
+  const platformData = useSelector(
+    (state) => state.accordionPane?.platformData,
+  );
+  const isPreviewToggled = useSelector(
+    (state) => state.navBar.isPreviewToggled,
+  );
 
   const { primary } = useSelector((state) => state.styling);
 
@@ -94,7 +113,11 @@ function ContentPane({ type }) {
   }, []);
 
   // Don't reload SFR data if it already has persisted data
-  const prevSelectionsRef = useRef({ pp: undefined, pkgs: undefined, mods: undefined });
+  const prevSelectionsRef = useRef({
+    pp: undefined,
+    pkgs: undefined,
+    mods: undefined,
+  });
 
   useEffect(() => {
     const prev = prevSelectionsRef.current;
@@ -106,7 +129,11 @@ function ContentPane({ type }) {
     const modsChanged = prev.mods !== selectedModules;
 
     // Update ref
-    prevSelectionsRef.current = { pp: selectedPP, pkgs: selectedPackages, mods: selectedModules };
+    prevSelectionsRef.current = {
+      pp: selectedPP,
+      pkgs: selectedPackages,
+      mods: selectedModules,
+    };
 
     // On first mount with existing data, skip reload
     if (isFirstMount) {
@@ -118,7 +145,12 @@ function ContentPane({ type }) {
 
     // Only reload if something actually changed (not just a StrictMode re-run)
     if (isFirstMount || ppChanged || pkgsChanged || modsChanged) {
-      loadSfrSectionsFromSelections(dispatch, selectedPP, selectedPackages, selectedModules);
+      loadSfrSectionsFromSelections(
+        dispatch,
+        selectedPP,
+        selectedPackages,
+        selectedModules,
+      );
     }
   }, [selectedPP, selectedPackages, selectedModules]);
 
@@ -143,7 +175,7 @@ function ContentPane({ type }) {
             platforms: pd.platforms || [],
             xml: pd.xml || "",
             selectedPlatforms: selectedPlatforms,
-          })
+          }),
         );
         // Only default to all if no platforms were persisted
         if (selectedPlatforms.length === 0) {
@@ -161,7 +193,7 @@ function ContentPane({ type }) {
             platforms: pd.platforms || [],
             xml: pd.xml || "",
             selectedPlatforms: allPlatformIds,
-          })
+          }),
         );
       }
     } else {
@@ -172,7 +204,7 @@ function ContentPane({ type }) {
           platforms: [],
           xml: "",
           selectedPlatforms: [],
-        })
+        }),
       );
     }
   }, [selectedPP]);
@@ -185,7 +217,9 @@ function ContentPane({ type }) {
    * @param {*} platformId
    */
   const handlePlatformToggle = (platformId) => {
-    const updated = selectedPlatforms.includes(platformId) ? selectedPlatforms.filter((id) => id !== platformId) : [...selectedPlatforms, platformId];
+    const updated = selectedPlatforms.includes(platformId)
+      ? selectedPlatforms.filter((id) => id !== platformId)
+      : [...selectedPlatforms, platformId];
 
     dispatch(SET_SELECTED_PLATFORMS(updated));
 
@@ -195,7 +229,7 @@ function ContentPane({ type }) {
         platforms: platformData?.platforms || [],
         xml: platformData?.xml || "",
         selectedPlatforms: updated,
-      })
+      }),
     );
   };
 
@@ -209,22 +243,31 @@ function ContentPane({ type }) {
   };
 
   return (
-    <div className='h-full min-w-full' key={type + "ContentPane"}>
-      <div className='rounded-lg min-h-full flex flex-col'>
-        <div className='border-2 border-gray-400 rounded-xl p-3 bg-base-200 h-20'>
-          <div className={`text-2xl font-bold text-secondary flex justify-center items-center ${title === "Preview" ? "ml-3 pt-1" : "pt-2"}`}>{title}</div>
+    <div className="h-full min-w-full" key={type + "ContentPane"}>
+      <div className="rounded-lg min-h-full flex flex-col">
+        <div className="border-2 border-gray-400 rounded-xl p-3 bg-base-200 h-20">
+          <div
+            className={`text-2xl font-bold text-secondary flex justify-center items-center ${title === "Preview" ? "ml-3 pt-1" : "pt-2"}`}
+          >
+            {title}
+          </div>
         </div>
 
-        <div className='mt-4 border-2 border-gray-300 rounded-lg p-3 bg-gray-300 text-black flex flex-1 min-h-screen min-w-full'>
+        <div className="mt-4 border-2 border-gray-300 rounded-lg p-3 bg-gray-300 text-black flex flex-1 min-h-screen min-w-full">
           <div
             className={`min-w-full ${isPreviewToggled ? " h-screen overflow-y-scroll scrollbar scrollbar-thumb-gray-100 scrollbar-track-gray " : ""}`}
-            ref={scrollContainerRef}>
-            <div className='min-w-full space-y-4'>
+            ref={scrollContainerRef}
+          >
+            <div className="min-w-full space-y-4">
               {/* ST Metadata */}
-              <SingleAccordion title='ST Metadata'>
-                <div className='flex flex-wrap gap-5 w-full p-4'>
+              <SingleAccordion title="ST Metadata">
+                <div className="flex flex-wrap gap-5 w-full p-4">
                   {metadataFields.map(({ label, field }) => (
-                    <FormControl key={field} sx={{ flex: "1 1 200px" }} required>
+                    <FormControl
+                      key={field}
+                      sx={{ flex: "1 1 200px" }}
+                      required
+                    >
                       <InputLabel>{label}</InputLabel>
                       <Input
                         style={{ height: "40px" }}
@@ -235,7 +278,7 @@ function ContentPane({ type }) {
                             UPDATE_ST_METADATA({
                               field,
                               value: e.target.value,
-                            })
+                            }),
                           )
                         }
                       />
@@ -245,38 +288,58 @@ function ContentPane({ type }) {
               </SingleAccordion>
 
               {/* PP Selections */}
-              <SingleAccordion title='PP, Package, and Module Selections'>
-                <div className='p-4'>
+              <SingleAccordion title="PP, Package, and Module Selections">
+                <div className="p-4">
                   <PPSelections
                     selectedPP={selectedPP}
                     setSelectedPP={(value) => dispatch(SET_SELECTED_PP(value))}
                     selectedPackages={selectedPackages}
-                    setSelectedPackages={(value) => dispatch(SET_SELECTED_PACKAGES(value))}
+                    setSelectedPackages={(value) =>
+                      dispatch(SET_SELECTED_PACKAGES(value))
+                    }
                     selectedModules={selectedModules}
-                    setSelectedModules={(value) => dispatch(SET_SELECTED_MODULES(value))}
+                    setSelectedModules={(value) =>
+                      dispatch(SET_SELECTED_MODULES(value))
+                    }
                     showSecond={showRequirements}
                     triggerResetConfirmation={triggerResetConfirmation}
                   />
 
                   {/* Platform Selection */}
                   {platformData?.platforms?.length > 0 && (
-                    <Card className='mt-4 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition-all'>
-                      <CardBody className='p-4'>
-                        <Typography variant='h6' sx={{ fontWeight: "bold", color: primary, fontSize: "15px", marginBottom: "8px" }}>
+                    <Card className="mt-4 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition-all">
+                      <CardBody className="p-4">
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: "bold",
+                            color: primary,
+                            fontSize: "15px",
+                            marginBottom: "8px",
+                          }}
+                        >
                           Platforms
                         </Typography>
-                        <div className='flex flex-col gap-1'>
+                        <div className="flex flex-col gap-1">
                           {platformData.platforms.map((platform) => (
                             <FormControlLabel
                               key={platform.id}
                               control={
                                 <Checkbox
-                                  checked={selectedPlatforms.includes(platform.id)}
-                                  onChange={() => handlePlatformToggle(platform.id)}
-                                  color='primary'
+                                  checked={selectedPlatforms.includes(
+                                    platform.id,
+                                  )}
+                                  onChange={() =>
+                                    handlePlatformToggle(platform.id)
+                                  }
+                                  color="primary"
                                 />
                               }
-                              label={<Typography sx={{ fontSize: "0.9rem" }}>{platform.name}</Typography>}
+                              label={
+                                <Typography sx={{ fontSize: "0.9rem" }}>
+                                  {platform.name}
+                                </Typography>
+                              }
                             />
                           ))}
                         </div>
@@ -285,14 +348,20 @@ function ContentPane({ type }) {
                   )}
 
                   {/* Buttons under PP Selections */}
-                  <div className='flex items-center gap-3 mt-4'>
+                  <div className="flex items-center gap-3 mt-4">
                     {!showRequirements && selectedPP && (
                       <Button
-                        size='small'
-                        variant='contained'
-                        color='primary'
-                        sx={{ fontSize: "12px", px: 2, borderRadius: "4px", textTransform: "none" }}
-                        onClick={() => dispatch(SET_SHOW_REQUIREMENTS(true))}>
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                        sx={{
+                          fontSize: "12px",
+                          px: 2,
+                          borderRadius: "4px",
+                          textTransform: "none",
+                        }}
+                        onClick={() => dispatch(SET_SHOW_REQUIREMENTS(true))}
+                      >
                         Generate Requirements
                       </Button>
                     )}
@@ -302,10 +371,13 @@ function ContentPane({ type }) {
 
               {/* Requirements Accordion */}
               {showRequirements && (
-                <SingleAccordion title='ST Requirements'>
-                  <div className='p-4'>
-                    <SingleAccordion title='Technical Decisions' defaultOpen={false}>
-                      <div className='p-4'>
+                <SingleAccordion title="ST Requirements">
+                  <div className="p-4">
+                    <SingleAccordion
+                      title="Technical Decisions"
+                      defaultOpen={false}
+                    >
+                      <div className="p-4">
                         {selectedPP && (
                           <MetadataTD
                             selectedPP={selectedPP}
@@ -319,16 +391,6 @@ function ContentPane({ type }) {
                     </SingleAccordion>
 
                     {selectedPP && <Requirements />}
-                    {/* Bottom Button Row */}
-                    <div className='flex justify-center gap-4 mt-6 mb-2'>
-                      <Button size='small' variant='contained' color='primary' sx={{ fontSize: "12px", px: 2, borderRadius: "4px", textTransform: "none" }}>
-                        Export ST
-                      </Button>
-
-                      <Button size='small' variant='contained' color='primary' sx={{ fontSize: "12px", px: 2, borderRadius: "4px", textTransform: "none" }}>
-                        Export Activity
-                      </Button>
-                    </div>
                   </div>
                 </SingleAccordion>
               )}
@@ -339,7 +401,7 @@ function ContentPane({ type }) {
 
       {/* Reset Confirmation Modal */}
       <ResetDataConfirmation
-        title='Changing Selections will Regenerate Requirements'
+        title="Changing Selections will Regenerate Requirements"
         text="Changing the Base PP, Functional Packages, or Modules will regenerate all requirements and erase any selections you've made so far. Do you wish to proceed?"
         open={resetModalOpen}
         handleOpen={() => {
