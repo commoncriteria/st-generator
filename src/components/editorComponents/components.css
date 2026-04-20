@@ -1,0 +1,394 @@
+/*
+ * NOTICE:
+ *
+ * This software was produced for the U. S. Government
+ * under Basic Contract No. W56KGU-18-D-0004, and is
+ * subject to the Rights in Noncommercial Computer Software
+ * and Noncommercial Computer Software Documentation
+ * Clause 252.227-7014 (FEB 2014)
+ *
+ * © 2026 The MITRE Corporation.
+ */
+
+#toc a {
+  display: block;
+}
+
+svg {
+  width: 100%;
+}
+
+a[id^="ajq_"] {
+  color: black;
+}
+
+#toc span {
+  margin-left: 20px;
+}
+.assignable-content {
+  font-style: italic;
+}
+.refinement {
+  font-weight: bold;
+}
+div.eacategory {
+  font-style: italic;
+  font-weight: bold;
+}
+
+a {
+  text-decoration: none;
+  word-wrap: break-word;
+}
+a.abbr:link {
+  color: black;
+  text-decoration: none;
+}
+a.abbr:visited {
+  color: black;
+  text-decoration: none;
+}
+a.abbr:hover {
+  color: blue;
+  text-decoration: none;
+}
+a.abbr:hover:visited {
+  color: purple;
+  text-decoration: none;
+}
+a.abbr:active {
+  color: red;
+  text-decoration: none;
+}
+.note-header {
+  font-weight: bold;
+}
+.note p:first-child {
+  display: inline;
+}
+
+.indent {
+  margin-left: 2em;
+}
+
+/* Tooltip container */
+.tooltipped {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltipped:hover .tooltiptext {
+  visibility: visible;
+}
+tr.major-row {
+  border-top-style: double;
+}
+tr.major-row td:first-child {
+  border-right-style: ridge;
+  background-color: white;
+}
+table.mfs td {
+  text-align: center;
+}
+table.mfs td:first-child {
+  text-align: left;
+}
+.table-caption {
+  text-align: center;
+  font-weight: bold;
+}
+table {
+  margin: auto;
+  margin-top: 1em;
+  border-collapse: collapse;
+  border: 1px solid black;
+}
+td {
+  text-align: left;
+  padding: 8px 8px;
+}
+th {
+  padding: 8px 8px;
+}
+thead tr td {
+  text-align: center;
+  font-style: oblique;
+  font-weight: bold;
+}
+tr.header {
+  border-bottom: 3px solid grey;
+  padding: 8px 8px;
+  text-align: left;
+  font-weight: bold; /*font-size: 90%; font-family: verdana, arial, helvetica, sans-serif; */
+}
+table tr:nth-child(2n + 2) {
+  background-color: #f4f4f4;
+}
+table tr:nth-child(2n + 2) textarea {
+  background-color: #f4f4f4;
+}
+.dependent {
+  border: 1px solid grey;
+  border-radius: 1px;
+}
+.dependent-content {
+  margin-left: 25px;
+  font-style: italic;
+}
+
+.uc_table_or td,
+.uc_table_or tr {
+  vertical-align: middle;
+  border: 1px solid black;
+  background-color: white;
+}
+
+.uc_not,
+.uc_mf,
+.uc_sel,
+.uc_guide {
+  text-indent: 10px;
+}
+.uc_not_sel,
+.uc_sel.uc_mf,
+uc_assign.uc_mf {
+  text-indent: 20px;
+}
+
+.uc_table_or tr td.or_cell {
+  white-space: nowrap;
+  border-radius: 0.6em 0 0 0.6em;
+  background-color: black;
+  color: white;
+}
+
+.uc_table_and,
+.uc_table_or {
+  width: 100%;
+  background-color: white;
+}
+.uc_guidance {
+  display: table;
+  background-color: grey;
+}
+
+.evidence,
+.test-obj {
+  font-style: normal;
+  font-size: 90%;
+}
+
+.figure {
+  font-weight: bold;
+}
+h1 {
+  page-break-before: always;
+  text-align: left;
+  font-size: 200%;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  font-family: verdana, arial, helvetica, sans-serif;
+  margin-bottom: 1em;
+}
+h1.title {
+  text-align: center;
+}
+h2 {
+  font-size: 125%;
+  border-bottom: solid 1px grey;
+  margin-bottom: 1em;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+  font-family: verdana, arial, helvetica, sans-serif;
+}
+h3 {
+  font-size: 110%;
+  margin-bottom: 0.25em;
+  font-family: verdana, arial, helvetica, sans-serif;
+}
+h4 {
+  margin-left: 0%;
+  font-size: 100%;
+  margin-bottom: 0.75em;
+  font-family: verdana, arial, helvetica, sans-serif;
+}
+h5,
+h6 {
+  margin-left: 6%;
+  font-size: 90%;
+  margin-bottom: 0.5em;
+  font-family: verdana, arial, helvetica, sans-serif;
+}
+p {
+  margin-bottom: 0.6em;
+  margin-top: 0.2em;
+}
+pre {
+  margin-bottom: 0.5em;
+  margin-top: 0.25em;
+  margin-left: 3%;
+  font-family: monospace;
+  font-size: 90%;
+}
+ul {
+  margin-bottom: 0.5em;
+  margin-top: 0.25em;
+}
+td {
+  vertical-align: top;
+}
+dl {
+  margin-bottom: 0.5em;
+  margin-top: 0.25em;
+}
+dt {
+  margin-top: 0.7em;
+  font-weight: bold;
+  font-family: verdana, arial, helvetica, sans-serif;
+}
+
+a.linkref {
+  font-family: verdana, arial, helvetica, sans-serif;
+  font-size: 90%;
+}
+
+*.simpleText {
+  margin-left: 10%;
+}
+*.propertyText {
+  margin-left: 10%;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+*.toc {
+  background: #ffffff;
+}
+*.toc2 {
+  background: #ffffff;
+}
+div.comp {
+  margin-left: 8%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+div.element {
+  margin-bottom: 1em;
+}
+div.appnote {
+  margin-left: 0%;
+  margin-top: 1em;
+}
+.comment-aa {
+  background-color: beige;
+  color: green;
+}
+div.subaact {
+  margin-left: 0%;
+  margin-top: 1em;
+}
+div.activity_pane_body {
+  font-style: italic;
+  margin-left: 0%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding: 1em;
+  border: 2px solid #888888;
+  border-radius: 3px;
+  display: block;
+  margin-left: 0%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  box-shadow:
+    0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 3px 1px -2px rgba(0, 0, 0, 0.2),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+
+div.statustag {
+  margin-left: 0%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding: 0.6em;
+  border: 2px solid #888888;
+  border-radius: 3px;
+}
+
+div.toc {
+  margin-left: 8%;
+  margin-bottom: 4em;
+  padding-bottom: 0.75em;
+  padding-top: 1em;
+  padding-left: 2em;
+  padding-right: 2em;
+}
+span.SOlist {
+  font-size: 90%;
+  font-family: verdana, arial, helvetica, sans-serif;
+}
+h2.toc {
+  border-bottom: none;
+  margin-left: 0%;
+  margin-top: 0em;
+}
+p.toc {
+  margin-left: 2em;
+  margin-bottom: 0.2em;
+  margin-top: 0.5em;
+}
+p.toc2 {
+  margin-left: 5em;
+  margin-bottom: 0.1em;
+  margin-top: 0.1em;
+}
+div.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+div.figure {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  margin-top: 1em;
+}
+div.activity_pane_header {
+  display: table-cell;
+  vertical-align: middle;
+  padding-top: 10px;
+}
+span.activity_pane_label {
+  vertical-align: middle;
+  color: black;
+  text-decoration: none;
+  font-size: 100%;
+  font-weight: bold; /*font-family: verdana, arial, helvetica, sans-serif; */
+}
+.dyn-abbr a,
+.dyn-abbr a:active,
+.dyn-abbr a:visited {
+  background-color: inherit;
+  color: inherit;
+  text-decoration: inherit;
+}
+textarea {
+  background-color: transparent;
+}

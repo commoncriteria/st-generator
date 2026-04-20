@@ -1,0 +1,368 @@
+/*
+ * NOTICE:
+ *
+ * This software was produced for the U. S. Government
+ * under Basic Contract No. W56KGU-18-D-0004, and is
+ * subject to the Rights in Noncommercial Computer Software
+ * and Noncommercial Computer Software Documentation
+ * Clause 252.227-7014 (FEB 2014)
+ *
+ * © 2026 The MITRE Corporation.
+ */
+
+/* Tailwind Styles */
+@tailwind base;
+
+@layer base {
+  html {
+    @apply text-neutral-800;
+  }
+
+  html.dark {
+    @apply text-neutral-50;
+    @apply bg-neutral-800;
+  }
+
+  strong {
+    font-weight: bold;
+  }
+
+  ::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+}
+
+@tailwind components;
+
+@tailwind utilities;
+
+/* SFR Preview Styles */
+.xml-viewer {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.preview {
+  word-break: break-word;
+  text-align: left;
+  padding-left: 10px;
+  padding-bottom: 10px;
+  padding-top: 5px;
+  font-size: 0.9rem;
+}
+
+.preview ul,
+ol {
+  padding-left: 1em;
+}
+
+.preview li {
+  margin-left: 14px;
+  list-style-type: disc;
+  padding-left: 1.5em;
+  text-indent: -1.3em;
+}
+
+.preview ul ul li {
+  list-style-type: circle;
+}
+
+.preview ul ul ul ul li {
+  list-style-type: circle;
+}
+
+/* Ordered lists */
+.preview ol li {
+  /* Default numbering style for ordered lists */
+  margin-left: 14px;
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  text-indent: -1.3em;
+}
+
+/* Nested ordered lists */
+.preview ol ol li {
+  list-style-type: lower-alpha; /* Use lowercase letters for second-level nested lists */
+}
+
+.preview ol ol ol li {
+  list-style-type: lower-roman; /* Use lowercase roman numerals for third-level nested lists */
+}
+
+/* Mixed nested lists: ul inside ol */
+.preview ol ul li {
+  list-style-type: disc;
+  padding-left: 1em;
+}
+
+/* Mixed nested lists: ol inside ul */
+.preview ul ol li {
+  list-style-type: decimal;
+  padding-left: 1em;
+}
+
+.ProseMirror ol ol li {
+  list-style-type: lower-alpha;
+}
+
+.ProseMirror ol ol ol li {
+  list-style-type: lower-roman;
+}
+
+.ProseMirror ol ul li {
+  list-style-type: disc;
+  padding-left: 1em;
+}
+
+.ProseMirror ul ol li {
+  list-style-type: decimal;
+  padding-left: 1em;
+}
+
+/* AG Data Grid Styles */
+.ag-theme-quartz {
+  --ag-font-size: 14px;
+  --ag-header-foreground-color: #d926a9;
+  --ag-row-height: 50px;
+  --ag-row-border-width: 1px;
+  --ag-row-border-color: #dedede;
+}
+
+.ag-center-cols-viewport {
+  min-height: unset !important;
+}
+
+.ag-theme-quartz li {
+  list-style-type: disc;
+  padding-left: 2em;
+  text-indent: -1.3em;
+}
+
+.ag-header-cell-label {
+  font-weight: bold;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow: visible !important;
+  line-height: 1.2 !important;
+}
+
+.ag-tooltip {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: 300px;
+  background-color: #616161;
+  color: #eaeaea;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* This CSS is to not apply the border for the column having 'no-border' class */
+.no-border.ag-cell:focus {
+  border: none !important;
+  outline: none;
+}
+
+/* TipTap Styles */
+.tiptap {
+  color: #333;
+  font-size: 13px;
+  background-color: #f9f9f9;
+}
+
+.tiptap h1 {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.tiptap h3 {
+  font-size: 16px;
+}
+
+.tiptap ol {
+  list-style-type: decimal;
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.tiptap ul {
+  list-style-type: disc;
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.tiptap ul li {
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.tiptap ul ul {
+  list-style-type: circle;
+  margin-left: 20px;
+}
+
+.tiptap ul ul ul {
+  list-style-type: square;
+  margin-left: 20px;
+}
+
+.tiptap ul ul ul ul {
+  list-style-type: disc;
+  margin-left: 20px;
+}
+
+.row-before-icon {
+  transform: rotate(90deg);
+  height: 1.5em;
+  width: 1.5em;
+  color: #a6adba;
+}
+
+.row-after-icon {
+  transform: rotate(270deg);
+  height: 1.5em;
+  width: 1.5em;
+  color: #a6adba;
+}
+
+.tiptap-icon {
+  height: 1.5em;
+  width: 1.5em;
+  color: #a6adba;
+}
+
+.menu-bar {
+  display: flex;
+  gap: 10px;
+  background: #ffffff;
+  padding: 10px 15px 10px;
+}
+
+.menu-bar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: #a6adba;
+}
+
+.menu-bar button.is-active {
+  color: black;
+}
+
+.bubble-menu {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bubble-menu button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.bubble-menu button:hover {
+  background-color: #f0f0f0;
+}
+
+.ProseMirror {
+  padding: 8px;
+}
+
+.tiptap table {
+  border-collapse: collapse; /* Ensures borders are shared between cells */
+  min-width: 50%; /* Optional: makes the table take the full width */
+}
+
+.tiptap table th,
+.tiptap table td {
+  border: 1px solid #ccc; /* Adds a border to each cell */
+  padding: 8px; /* Optional: adds padding for better readability */
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.tiptap strong {
+  font-weight: bold;
+}
+
+.tiptap pre {
+  background-color: #282c34;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  padding: 15px 20px;
+  margin: 0px 0px 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  color: #ddd;
+}
+
+/* Tighten spacing for MUI checkboxes */
+.MuiFormControlLabel-root {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  align-items: center !important;
+}
+
+.MuiFormControlLabel-root + .MuiFormControlLabel-root {
+  margin-top: 2px !important;
+}
+
+.MuiCheckbox-root,
+.MuiRadio-root {
+  padding: 2px 6px !important;
+  margin-top: 0 !important;
+}
+
+.MuiFormControlLabel-label {
+  margin: 0 !important;
+  padding: 0 !important;
+  padding-top: 2px !important;
+  align-items: center;
+}
+
+.table-scroll-container::-webkit-scrollbar {
+  width: 12px; /* vertical */
+  height: 12px; /* horizontal */
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 6px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+  background: #999;
+  border-radius: 6px;
+  border: 2px solid #f0f0f0;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Firefox */
+.table-scroll-container {
+  scrollbar-width: auto;
+  scrollbar-color: #999 #f0f0f0;
+}
