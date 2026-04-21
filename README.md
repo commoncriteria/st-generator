@@ -2,6 +2,9 @@
 
 A React/Redux based web application for generating Security Targets (STs). The tool allows security evaluators and ST authors to select a base Protection Profile (PP), Functional Packages, and PP Modules, then configure Security Functional Requirements (SFRs) and Security Assurance Requirements (SARs) through an interactive worksheet interface.
 
+# Live Version
+The live version of the ST Generator can be found here: https://commoncriteria.github.io/st-generator/
+
 ## Overview
 
 The Security Target Generator streamlines the process of creating Security Targets by:
