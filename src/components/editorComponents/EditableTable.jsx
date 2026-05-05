@@ -11,6 +11,7 @@
  */
 
 // Imports
+import DOMPurify from "dompurify";
 import PropTypes from "prop-types";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -137,9 +138,11 @@ function EditableTable(props) {
       const colDefs = props.columnData.map((column) => {
         const { headerName, field, editable, resizable, flex, type } = column;
         const headerTooltip = column.hasOwnProperty("headerTooltip") ? column.headerTooltip : null;
+        const cellTooltip = column.hasOwnProperty("cellTooltip") ? column.cellTooltip : null;
+        const valueGetter = column.hasOwnProperty("valueGetter") ? column.valueGetter : null;
         const children = column.hasOwnProperty("children") ? column.children : null;
         const style = Object.keys(newStyling).length > 0 ? newStyling : styling;
-        return getColumnDataByType(headerName, field, editable, resizable, flex, type, headerTooltip, children, style);
+        return getColumnDataByType(headerName, field, editable, resizable, flex, type, headerTooltip, cellTooltip, valueGetter, children, style);
       });
       if (JSON.stringify(columnDefs) !== JSON.stringify(colDefs)) {
         setColumnDefs(colDefs);
@@ -350,7 +353,7 @@ function EditableTable(props) {
    * @param style the style
    * @returns {{autoHeight: boolean, headerName: *, field: *, resizable: *, editable: *, flex: *|number, cellStyle: {paddingBottom: string, textAlign: string, lineHeight: string, paddingTop: string}}}
    */
-  const getColumnDataByType = (headerName, field, editable, resizable, flex, type, headerTooltip, children, style) => {
+  const getColumnDataByType = (headerName, field, editable, resizable, flex, type, headerTooltip, cellTooltip, valueGetter, children, style) => {
     let columnData = {
       headerName: headerName,
       field: field,
@@ -372,6 +375,16 @@ function EditableTable(props) {
       columnData.headerTooltip = headerTooltip;
     }
 
+    // Add cell tooltip if one was provided (string or function)
+    if (cellTooltip) {
+      columnData.tooltipValueGetter = typeof cellTooltip === "function" ? cellTooltip : () => cellTooltip;
+    }
+
+    // Add valueGetter if one was provided
+    if (valueGetter) {
+      columnData.valueGetter = valueGetter;
+    }
+
     // Remove cell border on click if the edit full row has been selected
     if (props.editFullRow) {
       columnData.suppressCellFocus = true;
@@ -384,7 +397,21 @@ function EditableTable(props) {
         children = children.map((child) => {
           const { headerName, field, editable, resizable, flex, type } = child;
           const innerChildren = child.hasOwnProperty("children") ? child.children : null;
-          return getColumnDataByType(headerName, field, editable, resizable, flex, type, headerTooltip, innerChildren, style);
+          const innerCellTooltip = child.hasOwnProperty("cellTooltip") ? child.cellTooltip : null;
+          const innerValueGetter = child.hasOwnProperty("valueGetter") ? child.valueGetter : null;
+          return getColumnDataByType(
+            headerName,
+            field,
+            editable,
+            resizable,
+            flex,
+            type,
+            headerTooltip,
+            innerCellTooltip,
+            innerValueGetter,
+            innerChildren,
+            style
+          );
         });
       }
       columnData.children = children;
@@ -458,7 +485,7 @@ function EditableTable(props) {
           tooltipValueGetter: () => 'Double click to edit. \nHold "Shift + Enter" \nto add a new line.',
           cellRenderer: (params) => {
             const { value } = params;
-            return <div style={{ whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: value }} />;
+            return <div style={{ whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }} />;
           },
         };
         break;
@@ -516,7 +543,7 @@ function EditableTable(props) {
         additionalColumnData = {
           cellRenderer: (params) => {
             const { value } = params;
-            return <div style={{ whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: value }} />;
+            return <div style={{ whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }} />;
           },
         };
         break;
@@ -641,6 +668,13 @@ function EditableTable(props) {
         };
         break;
       }
+      case "Dropdown": {
+        additionalColumnData = {
+          cellEditor: "agSelectCellEditor",
+          cellEditorParams: { values: ["Yes", "No"] },
+        };
+        break;
+      }
       default:
         break;
     }
@@ -674,7 +708,7 @@ function EditableTable(props) {
         </Tooltip>
       );
     } else {
-      return <div style={{ whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: value }} />;
+      return <div style={{ whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }} />;
     }
   };
   const getAgGrid = () => {

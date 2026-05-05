@@ -41,7 +41,8 @@ function MetadataTD(props) {
     { headerName: "TD Number", field: "tdNumber", editable: false, resizable: true, type: "Editor", flex: 1 },
     { headerName: "Technical Decision", field: "td", editable: false, resizable: true, type: "Editor", flex: 2 },
     { headerName: "Sfrs", field: "components", editable: false, resizable: true, type: "Editor", flex: 3 },
-    { headerName: "Reason", field: "reason", editable: true, resizable: true, type: "Multiline", flex: 3 },
+    { headerName: "Applied", field: "applied", editable: true, resizable: true, type: "Dropdown", flex: 1, cellTooltip: "Double click cell to edit contents" },
+    { headerName: "Reason", field: "reason", editable: (params) => params.data?.applied === "No", resizable: true, type: "Multiline", flex: 3, cellTooltip: (params) => params.data?.applied === "No" ? "Double click cell to edit contents" : null, valueGetter: (params) => params.data?.applied === "No" ? (params.data?.reason || "") : "" },
   ];
   const editable = { addColumn: false, addRow: false, removeColumn: false, removeRow: false };
   const defaultReasonValue = "Edit Reason";
@@ -103,6 +104,7 @@ function MetadataTD(props) {
                     td: tdDefaultVal?.title || sfrs?.sections?.[familyKey]?.title || familyKey,
                     components: [],
                     reason: defaultReasonValue,
+                    applied: "Yes",
                     uniquePP: uniquePP,
                     sfrs: [],
                   };
@@ -117,11 +119,12 @@ function MetadataTD(props) {
                   store.dispatch(ADD_SFR_TO_TD_DEFAULT({ tdNumber: tdNumberLocal, uuid: sfrKey }));
                 }
 
-                // attach reason if present in existing state
+                // attach reason and applied if present in existing state
                 let matchReason = Object.entries(state.stTD).find(([k, v]) => v.uniquePP === uniquePP && v.tdNumber === tdNumberLocal);
                 if (matchReason) {
                   const [, matchedValue] = matchReason;
                   tdRows[dictKey].reason = matchedValue?.tdReason || defaultReasonValue;
+                  tdRows[dictKey].applied = matchedValue?.applied || "Yes";
                 }
               }
             });
@@ -136,11 +139,11 @@ function MetadataTD(props) {
       Object.entries(tdRows)
         .sort((a, b) => b[0].localeCompare(a[0]))
         .forEach(([dictKey, dictVal]) => {
-          const { tdNumber: dTdNumber, td: dTd, components: dComps, reason: dReason, uniquePP: dUniquePP, sfrs: dSfrs } = dictVal;
+          const { tdNumber: dTdNumber, td: dTd, components: dComps, reason: dReason, applied: dApplied, uniquePP: dUniquePP, sfrs: dSfrs } = dictVal;
           const components = (dComps || []).join(", ");
           const sfrs = (dSfrs || []).join(", ");
 
-          rowArray.push({ tdNumber: dTdNumber, td: dTd, components: components, reason: dReason, uniquePP: dUniquePP, sfrs: sfrs });
+          rowArray.push({ tdNumber: dTdNumber, td: dTd, components: components, reason: dReason, applied: dApplied || "Yes", uniquePP: dUniquePP, sfrs: sfrs });
         });
     } catch (err) {
       // Log any unexpected error during merge so UI doesn't crash
@@ -174,11 +177,20 @@ function MetadataTD(props) {
    */
   const handleUpdateTableRow = async (event) => {
     try {
-      const { data, newValue } = event;
+      const { data, newValue, colDef } = event;
       const { td, tdNumber, uniquePP, sfrs } = data;
+      const field = colDef?.field;
 
-      // first create or get existing td, make empty if none
-      let reasonValue = newValue || "";
+      const isAppliedField = field === "applied";
+      const appliedValue = isAppliedField ? newValue || "Yes" : data.applied || "Yes";
+      const reasonValue = isAppliedField
+        ? appliedValue === "Yes" ? "" : (data.reason === defaultReasonValue ? "" : data.reason || "")
+        : newValue || "";
+
+      // Validate: "No" requires a reason
+      if (appliedValue === "No" && (!reasonValue || reasonValue === defaultReasonValue)) {
+        handleSnackBarError("A reason is required when Applied is set to No.");
+      }
 
       let currentTd = await store.dispatch(
         CREATE_TD({
@@ -187,19 +199,21 @@ function MetadataTD(props) {
           tdReason: reasonValue,
           sfrs: sfrs,
           uniquePP: uniquePP,
+          applied: appliedValue,
         })
       ).payload;
 
-      //then update it
+      // then update it
       const uuid = currentTd.uuid;
-      let updatedTd = await store.dispatch(
+      await store.dispatch(
         UPDATE_TD({
           uuid: uuid,
           tdReason: reasonValue,
+          applied: appliedValue,
         })
-      ).payload;
+      );
 
-      handleSnackBarSuccess(`TD reason updated.`);
+      handleSnackBarSuccess(isAppliedField ? "TD applied status updated." : "TD reason updated.");
     } catch (err) {
       handleSnackBarError(err);
     }

@@ -671,7 +671,7 @@ function SfrRequirements(props) {
       const siblingSelectedIds = getSelectedSiblingSelectableUUIDs(element?.selectableGroups, element?.selectables, containingGroupId, groupId);
       const isExclusive = Boolean(element?.selectableGroups?.[groupId]?.exclusive);
 
-      if (checked && isExclusive && siblingSelectedIds.length > 0) {
+      if (isExclusive && siblingSelectedIds.length > 0) {
         setExclusiveDialog({
           open: true,
           componentUUID,

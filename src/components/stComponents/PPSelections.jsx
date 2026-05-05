@@ -86,7 +86,7 @@ function PPSelections(props) {
               ? `${metadata.xmlTagMeta?.attributes?.name} ${metadata.version}${suffix}`
               : `${metadata.ppName} ${metadata.version}${suffix}`,
             type: MODULES[pkgKey] ? "module" : "package",
-            pkgJson: pkgJson || "none",
+            pkgJson: pkgJson,
           };
         }
       })

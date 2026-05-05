@@ -18,6 +18,7 @@ import { RESET_SFR_SECTION_STATE } from "../reducers/SFRs/sfrSectionSlice.js";
 import { RESET_SAR_STATE } from "../reducers/sarsSlice.js";
 import { RESET_SFR_BASE_PP_STATE } from "../reducers/SFRs/sfrBasePPsSlice.js";
 import { RESET_SFR_WORKSHEET_UI, UPDATE_EVALUATION_ACTIVITY_UI_ITEMS, UPDATE_SFR_WORKSHEET_ITEMS } from "../reducers/SFRs/sfrWorksheetUI.js";
+import { RESET_TD_STATE } from "../reducers/ST/tdSlice.js";
 import ToggleSwitch from "../components/ToggleSwitch.jsx";
 
 // Methods
@@ -88,6 +89,7 @@ export const handleSubmitResetDataMenu = (closeMenu) => {
     store.dispatch(RESET_SFR_BASE_PP_STATE());
     store.dispatch(RESET_SAR_STATE());
     store.dispatch(RESET_SFR_WORKSHEET_UI());
+    store.dispatch(RESET_TD_STATE());
 
     // Clear session storage
     sessionStorage.clear();

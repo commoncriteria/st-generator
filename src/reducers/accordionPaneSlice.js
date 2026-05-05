@@ -94,7 +94,7 @@ export const accordionPaneSlice = createSlice({
         state.loadedfile.filename = filename;
       }
       if (content) {
-        state.loadedfile.content = content ? content : "";
+        state.loadedfile.content = content;
       }
       if (pp !== undefined && typeof pp === "boolean") {
         state.loadedfile.pp = pp;

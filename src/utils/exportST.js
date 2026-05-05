@@ -40,7 +40,7 @@ function table_from_matrix(content, header = true, captionTitle = "") {
     if (index === 0 && header) {
       rows.push(`<tr>${row.map((s) => `<td ${HEADER_CELL_STYLE}><b>${s.toUpperCase()}</b></td>`).join("")}</tr>`);
     } else {
-      rows.push(`<tr>${row.map((s) => `<td ${CELL_STYLE}>${String(s.toUpperCase() ?? "")}</td>`).join("")}</tr>`);
+      rows.push(`<tr>${row.map((s) => `<td ${CELL_STYLE}>${String(s ?? "")}</td>`).join("")}</tr>`);
     }
   });
 
@@ -146,7 +146,7 @@ function serializeTitleParts(parts, selectableGroups, selectables, renderTabular
         return html;
       } else if (part?.text || part?.description) {
         let html = part.text || part.description;
-        return html.replace(/&lt;ctr[^&]*?&gt;:\s*(.*?)&lt;\/ctr&gt;/g, "$1");     
+        return html.replace(/&lt;ctr[^&]*?&gt;:\s*(.*?)&lt;\/ctr&gt;/g, "$1");
       }
 
       if (Array.isArray(part?.groups)) {
@@ -361,17 +361,76 @@ function componentToHTML(compName, compDesc, elements, elementMaps) {
   const incomplete = elementNames.some((name) => isIncomplete(elements?.[elementNameMap[name]]));
   const status = incomplete ? `<i style="color:red;">- INCOMPLETE</i>` : "";
 
-  const elHtml = elementNames
+  // Precompute type counters for elements in their original order so the
+  // numbering matches the original SAR-style rendering logic.
+  const counters = { C: 0, D: 0, E: 0 };
+  const countMap = {}; // element name -> counter for its type
+  const typeMap = {}; // element name -> type
+
+  for (const n of elementNames) {
+    const uuid = elementNameMap[n];
+    const candidate = elements?.[uuid];
+    if (!candidate) continue;
+    if (candidate.type) {
+      const t = candidate.type || "C";
+      counters[t]++;
+      countMap[n] = counters[t];
+      typeMap[n] = t;
+    }
+  }
+
+  // New ordering: Primary -> counter (numeric ascending, elements without
+  // a counter sort after), Secondary -> type (alphabetical ascending,
+  // elements without a type sort after), Tertiary -> name (case-insensitive).
+  const hasTypes = Object.keys(typeMap).length > 0;
+  const orderedNames = hasTypes
+    ? [...elementNames].sort((a, b) => {
+        // Primary: counter (elements without counters sort after)
+        const ca = countMap[a] ?? Number.POSITIVE_INFINITY;
+        const cb = countMap[b] ?? Number.POSITIVE_INFINITY;
+        if (ca !== cb) return ca - cb;
+
+        // Secondary: type (alphabetical). Elements without a type come after.
+        const ta = typeMap[a] || "";
+        const tb = typeMap[b] || "";
+        if (ta !== tb) {
+          if (!ta) return 1; // a has no type -> after b
+          if (!tb) return -1; // b has no type -> after a
+          return ta.localeCompare(tb);
+        }
+
+        // Tertiary: name (case-insensitive)
+        const na = (a || "").toLowerCase();
+        const nb = (b || "").toLowerCase();
+        if (na < nb) return -1;
+        if (na > nb) return 1;
+
+        return 0;
+      })
+    : elementNames;
+
+  // Render as a list: each item shows the (possibly SAR-styled) name and the
+  // element HTML. Keep rendering logic for displayName consistent with the
+  // original implementation by using the precomputed counters.
+  const elHtml = orderedNames
     .map((name) => {
       const elUUID = elementNameMap[name];
       const el = elements?.[elUUID];
       if (!el) return "";
 
+      let displayName = name;
+      if (el && el.type) {
+        const type = el.type || "C";
+        const comp = elementMaps?.componentName || "";
+        const num = countMap[name] || "";
+        displayName = `${comp}.${num} (${type})`;
+      }
+
       return `
         <div>
-            <div style="font-weight: bold; font-size: 14px; margin-top: 8px; margin-bottom: 4px;">
-                ${name}
-            </div>
+          <div style="font-weight: bold; font-size: 14px; margin-top: 8px; margin-bottom: 4px;">
+            ${displayName}
+          </div>
           ${elementToHTML(el)}
         </div>
       `;
@@ -493,15 +552,100 @@ function selectData(state) {
   const conformanceClaims = selectedPP.conformanceClaims || {};
   const ccVersionRaw = conformanceClaims?.cClaimsXMLTagMeta?.attributes?.["cc-version"] || "";
   const ccErrataRaw = conformanceClaims?.cClaimsXMLTagMeta?.attributes?.["cc-errata"] || conformanceClaims?.cc_errata || "";
-  const conformancePPClaims = conformanceClaims?.ppClaims || [];
-  const conformancePackageClaims = conformanceClaims?.packageClaims || [];
+
+  const selectedPackages = state?.accordionPane?.selectedPackages || [];
+  const selectedModules = state?.accordionPane?.selectedModules || [];
+
+  // Match a packageClaim text against a selected functional package.
+  // Uses the package's ppName, stripping any trailing abbreviation in parentheses
+  const packageClaimMatchesSelection = (claimText, pkg) => {
+    const ppName = pkg.pkgJson?.accordionPane?.metadata?.ppName || "";
+    const normalized = ppName.replace(/\s*\([^)]+\)\s*$/, "").trim();
+    return normalized && claimText.toLowerCase().includes(normalized.toLowerCase());
+  };
+
+  // Match a ppClaim text against a selected module.
+  // Uses the module's "target-product" attribute (e.g., "VPN client")
+  const moduleClaimMatchesSelection = (claimText, mod) => {
+    const metadata = mod.pkgJson?.accordionPane?.metadata || {};
+    const targetProduct = metadata.xmlTagMeta?.attributes?.["target-product"] || "";
+    return targetProduct && claimText.toLowerCase().includes(targetProduct.toLowerCase());
+  };
+
+  // Build the base PP's own conformance claim from its metadata
+  const basePPMeta = selectedPP?.accordionPane?.metadata || {};
+  const basePPClaimText = [basePPMeta.ppName, basePPMeta.version ? `Version ${basePPMeta.version}` : ""].filter(Boolean).join(", ");
+
+  // Include the base PP itself, then any package/mods
+  const conformancePPClaims = [
+    ...(basePPClaimText ? [{ text: basePPClaimText }] : []),
+    ...(conformanceClaims?.ppClaims || []).filter((claim) => selectedModules.some((mod) => moduleClaimMatchesSelection(claim.text, mod))),
+  ];
+
+  // Filter packageClaims based on selected ones
+  const conformancePackageClaims = (conformanceClaims?.packageClaims || []).filter((claim) =>
+    selectedPackages.some((pkg) => packageClaimMatchesSelection(claim.text, pkg))
+  );
 
   // ST reference
   const { stTitle = "", stVersion = "", stDate = "", stAuthor = "", toeDeveloper = "", toeIdentifier = "" } = stMeta;
 
   // Technical Decisions
-  // TODO: TD data specific to the PPs are not stored in redux currently
-  const technicalDecisions = [];
+  const stTD = state?.stTD || {};
+  const tdDefaults = Array.isArray(stTD.tdDefaults) ? stTD.tdDefaults : [];
+
+  const formatUniquePP = (val) =>
+    val
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "_")
+      .trim();
+
+  const ppMeta = selectedPP?.accordionPane?.metadata || {};
+  const ppValue = `${ppMeta.ppName ?? ""} ${ppMeta.version ?? ""}`.trim();
+
+  // Build TD rows for one source (PP, package, or module) — mirrors MetadataTD logic
+  const buildTdRows = (sfrSections, uniquePP, sourceName) => {
+    const matched = {};
+    Object.entries(sfrSections || {}).forEach(([, components]) => {
+      Object.entries(components || {}).forEach(([, component]) => {
+        const compCcId = (component?.cc_id || "").toString();
+        tdDefaults.forEach((tdDefault) => {
+          const ccIds = Array.isArray(tdDefault.cc_ids) ? tdDefault.cc_ids : tdDefault.cc_ids ? [tdDefault.cc_ids] : [];
+          const sectionVal = (tdDefault.section || "").toString();
+          const uniqueEndsWithSection = sectionVal ? uniquePP.endsWith(sectionVal) : true;
+          ccIds.forEach((cc) => {
+            const ccVal = (cc || "").toString();
+            const isSingleSpace = ccVal === " ";
+            const isMatch = (isSingleSpace || (compCcId && ccVal.toLowerCase().startsWith(compCcId.toLowerCase()))) && uniqueEndsWithSection;
+            if (isMatch) {
+              const key = `${tdDefault.tdNumber}-${uniquePP}`;
+              if (!matched[key]) {
+                const saved = Object.values(stTD).find(
+                  (v) => v && typeof v === "object" && !Array.isArray(v) && v.uniquePP === uniquePP && v.tdNumber === tdDefault.tdNumber
+                );
+                matched[key] = {
+                  source: sourceName,
+                  tdNumber: tdDefault.tdNumber,
+                  td: tdDefault.title,
+                  applied: saved?.applied || "Yes",
+                  reason: saved?.tdReason || "",
+                };
+              }
+            }
+          });
+        });
+      });
+    });
+    return Object.values(matched);
+  };
+
+  const uniquePPValue = formatUniquePP(ppValue);
+  const technicalDecisions = [
+    ...buildTdRows(selectedPP?.sfrSections || {}, uniquePPValue, ppValue),
+    ...selectedPackages.flatMap((pkg) => buildTdRows(pkg?.pkgJson?.sfrSections || {}, formatUniquePP(`${ppValue}-${pkg.value}`), pkg.label)),
+    ...selectedModules.flatMap((mod) => buildTdRows(mod?.pkgJson?.sfrSections || {}, formatUniquePP(`${ppValue}-${mod.value}`), mod.label)),
+  ];
 
   // Security problem definition
   const threatsSlice = selectedPP?.threats || {};
@@ -632,18 +776,50 @@ function selectData(state) {
     sarSlice: sars,
     sars: sarData,
     sfrSections,
+    // Platform selection data (used by TOE Overview export)
+    selectedPlatforms: state?.accordionPane?.platformData?.selectedPlatforms || [],
+    availablePlatforms: state?.accordionPane?.platformData?.platforms || [],
   };
+}
+
+// Render a simple TOE Overview listing the selected platform names.
+// selectedPlatformNames array from the platformData in the redux state.
+function renderToeOverview(d) {
+  const selectedPlatforms = d?.selectedPlatforms || [];
+  const availablePlatforms = d?.availablePlatforms || [];
+
+  const selectedPlatformNames = availablePlatforms.filter((platform) => selectedPlatforms.includes(platform.id)).map((platform) => platform.name);
+
+  if (!selectedPlatformNames.length) {
+    return `
+        <h2> TOE Overview</h2>
+        <div>
+            <p>No platforms selected.</p>
+        </div>
+    `;
+  }
+
+  // Render each selected platform as a paragraph prefixed with a bullet
+  const items = selectedPlatformNames.map((n) => `<p style="font-family: 'Times New Roman', Times, serif !important;">&#8226;&nbsp;${n}</p>`).join("\n");
+
+  return `
+        <h2> TOE Overview</h2>
+        <div style="font-family: 'Times New Roman', Times, serif !important;">
+            <h3>Selected Platforms</h3>
+            ${items}
+        </div>
+    `;
 }
 
 // Section Builders
 function section1(d) {
   const rows = [
-    ["st name", d.stTitle],
-    ["st version", d.stVersion],
-    ["st date", d.stDate],
-    ["st author", d.stAuthor],
-    ["toe developer", d.toeDeveloper],
-    ["toe identifier", d.toeIdentifier],
+    ["ST Name", d.stTitle],
+    ["ST Version", d.stVersion],
+    ["ST Date", d.stDate],
+    ["ST Author", d.stAuthor],
+    ["TOE Developer", d.toeDeveloper],
+    ["TOE Identifier", d.toeIdentifier],
   ];
   return `
         <h2> 1) Security Target Introduction</h2>
@@ -652,6 +828,7 @@ function section1(d) {
             <p>This section provides the identification and version control information for the ST and this TOE.</p>
             ${table_from_matrix([["Category", "Identifier"], ...rows], true, "Security Target Metadata")}
         </div>
+            ${renderToeOverview(d)}
     `;
 }
 
@@ -701,13 +878,14 @@ function renderCCConformanceClaims(d) {
 }
 
 function section2(d) {
-  const tdRows = [];
+  const tdRows = (d.technicalDecisions || []).map((td) => [td.source, td.tdNumber, td.td, td.applied, td.reason]);
   const ccClaimsHtml = renderCCConformanceClaims(d);
-
+  // Using paragraph tags to avoid Microsoft Word autoformat for list items
+  // Paragraph tags ensure the font stays Times new Roman
   const ppAndPackageItems = [...(d.conformancePPClaims || []), ...(d.conformancePackageClaims || [])]
     .map((claim) => (typeof claim === "string" ? claim : claim?.text || ""))
     .filter(Boolean)
-    .map((text) => `<li>${text}</li>`)
+    .map((text) => `<p style="font-family: 'Times New Roman', Times, serif !important;">&#8226;&nbsp;${text}</p>`)
     .join("\n");
 
   return `
@@ -718,12 +896,10 @@ function section2(d) {
 
         <h3> 2.2) PP Claims/Package Claims</h3>
         <p>This TOE is conformant to:</p>
-        <ul>
-            ${ppAndPackageItems}
-        </ul>
+        ${ppAndPackageItems}
 
         <h3> 2.3) NIAP Technical Decisions</h3>
-        ${table_from_matrix([["TD", "TD Name", "Applied", "Rationale"], ...tdRows], true, "Technical Decisions")}
+        ${table_from_matrix([["PP", "TD", "TD Name", "Applied", "Rationale"], ...tdRows], true, "Technical Decisions")}
 
         <h3> 2.4) Conformance Rationale</h3>
 `;

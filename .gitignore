@@ -17,7 +17,7 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-react-builder-st-wizard.code-workspace
+st-generator.code-workspace
 .idea
 .DS_Store
 *.suo
@@ -25,6 +25,7 @@ react-builder-st-wizard.code-workspace
 *.njsproj
 *.sln
 *.sw?
+.vite/*
 
 *screenshot.jp*g
 

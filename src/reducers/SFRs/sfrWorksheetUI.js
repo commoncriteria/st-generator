@@ -716,7 +716,7 @@ const initializeEvaluationActivitiesUI = (elementMaps, activities, sfrSections, 
   sfrElementSort(newDropdown.Elements);
 
   // Generate main dropdown
-  if (mainDropdown && JSON.stringify(evaluationActivityDropdown) !== JSON.stringify(mainDropdown)) {
+  if (JSON.stringify(evaluationActivityDropdown) !== JSON.stringify(mainDropdown)) {
     updateMap.evaluationActivityDropdown = mainDropdown;
 
     // Get newly selected if the name was changed
@@ -741,7 +741,7 @@ const initializeEvaluationActivitiesUI = (elementMaps, activities, sfrSections, 
   }
 
   // Generate new dropdown
-  if (newDropdown && JSON.stringify(newEvaluationActivityDropdown) !== JSON.stringify(newDropdown)) {
+  if (JSON.stringify(newEvaluationActivityDropdown) !== JSON.stringify(newDropdown)) {
     updateMap.newEvaluationActivityDropdown = newDropdown;
     updateMap.newSelectedEvaluationActivity = [];
   }

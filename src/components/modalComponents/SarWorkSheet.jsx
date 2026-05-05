@@ -273,7 +273,7 @@ function SarWorkSheet(props) {
                                   key={`${props.componentUUID}-sar-element-id`}
                                   label='Component ID'
                                   disabled={true}
-                                  value={selectedElementUUID && selectedElementUUID !== "" ? props.value.ccID.toUpperCase() : ""}
+                                  value={props.value.ccID.toUpperCase()}
                                 />
                               </Tooltip>
                             </div>
